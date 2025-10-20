@@ -25,7 +25,8 @@ export default function Home() {
       }
       const data = await response.json();
       setPosts(data);
-    } catch (err) {
+    } catch (error) {
+      console.error('Error fetching data:', error);
       setError('Error fetching data. Please try again later.');
     } finally {
       setLoading(false);
@@ -114,7 +115,7 @@ export default function Home() {
 
         {posts.length === 0 && !loading && !error && (
           <div className="text-center text-gray-500 mt-8">
-            Click "Fetch Top 10" to see the most upvoted Product Hunt posts from the past 10 days.
+            Click &quot;Fetch Top 10&quot; to see the most upvoted Product Hunt posts from the past 10 days.
           </div>
         )}
       </div>

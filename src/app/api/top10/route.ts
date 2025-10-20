@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 
 interface ProductHuntPost {
   name: string;
@@ -18,7 +18,7 @@ interface ProductHuntResponse {
   };
 }
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const { PRODUCTHUNT_API_KEY, PRODUCTHUNT_API_SECRET } = process.env;
 
