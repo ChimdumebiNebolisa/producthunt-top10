@@ -13,6 +13,7 @@ A modern, interactive web application that displays the top 10 most upvoted Prod
 - **Real-time Data Fetching**: Get the latest top 10 Product Hunt posts from the past 10 days
 - **Secure Authentication**: OAuth2 client credentials flow with Product Hunt API
 - **Interactive Sorting**: Sort by votes, launch date, or product name (ascending/descending)
+- **PDF Export**: Download data as formatted PDF for analysis and reporting
 - **Responsive Design**: Beautiful, mobile-first UI that works on all devices
 - **Error Handling**: Graceful error handling with user-friendly messages
 - **Loading States**: Smooth loading animations and feedback
@@ -39,6 +40,8 @@ A modern, interactive web application that displays the top 10 most upvoted Prod
 | **Next.js** | 15.5.6 | React framework with App Router |
 | **TypeScript** | Latest | Type-safe JavaScript |
 | **Tailwind CSS** | Latest | Utility-first CSS framework |
+| **jsPDF** | Latest | PDF generation library |
+| **html2canvas** | Latest | HTML to canvas conversion |
 | **Product Hunt API** | v2 | GraphQL API for product data |
 | **Vercel** | Latest | Deployment platform |
 | **GitHub Actions** | Latest | CI/CD pipeline |
@@ -105,7 +108,8 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
    - **Product Name** (A-Z or Z-A)
    - **Votes** (Highest to Lowest or vice versa)
    - **Launch Date** (Newest to Oldest or vice versa)
-5. **Visit Products**: Click any product name to visit its Product Hunt page
+5. **Export PDF**: Click "Export PDF" to download formatted data for analysis
+6. **Visit Products**: Click any product name to visit its Product Hunt page
 
 ### 🔄 Sorting Features
 
@@ -122,6 +126,17 @@ The application is fully responsive and works on:
 - **Desktop**: Full table view with all features
 - **Tablet**: Optimized layout with horizontal scrolling
 - **Mobile**: Touch-friendly interface with stacked layout
+
+### 📄 PDF Export Features
+
+Export your Product Hunt data for analysis and reporting:
+
+- **Formatted Tables**: Clean, professional table layout in PDF
+- **Summary Statistics**: Total votes, averages, and extremes
+- **Sort Information**: Includes current sort field and direction
+- **Metadata**: Generation date and data source information
+- **Automatic Naming**: Files named with current date for easy organization
+- **Analysis Ready**: Perfect for presentations and reports
 
 ## 🔧 API Documentation
 
