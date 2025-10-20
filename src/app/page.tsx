@@ -10,10 +10,15 @@ interface Post {
   url: string;
 }
 
+type SortField = 'votesCount' | 'createdAt' | 'name';
+type SortDirection = 'asc' | 'desc';
+
 export default function Home() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [sortField, setSortField] = useState<SortField>('votesCount');
+  const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
   const fetchTop10 = async () => {
     setLoading(true);
@@ -31,6 +36,61 @@ export default function Home() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSort = (field: SortField) => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortField(field);
+      setSortDirection('desc');
+    }
+  };
+
+  const sortedPosts = [...posts].sort((a, b) => {
+    let aValue: string | number;
+    let bValue: string | number;
+
+    switch (sortField) {
+      case 'votesCount':
+        aValue = a.votesCount;
+        bValue = b.votesCount;
+        break;
+      case 'createdAt':
+        aValue = new Date(a.createdAt).getTime();
+        bValue = new Date(b.createdAt).getTime();
+        break;
+      case 'name':
+        aValue = a.name.toLowerCase();
+        bValue = b.name.toLowerCase();
+        break;
+      default:
+        return 0;
+    }
+
+    if (aValue < bValue) return sortDirection === 'asc' ? -1 : 1;
+    if (aValue > bValue) return sortDirection === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  const getSortIcon = (field: SortField) => {
+    if (sortField !== field) {
+      return (
+        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+        </svg>
+      );
+    }
+    
+    return sortDirection === 'asc' ? (
+      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h6m4 0l4-4m0 0l4 4m-4-4v12" />
+      </svg>
+    ) : (
+      <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4h13M3 8h9m-9 4h9m5-4v12m0 0l-4-4m4 4l4-4" />
+      </svg>
+    );
   };
 
   return (
@@ -70,14 +130,38 @@ export default function Home() {
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="py-4 px-6 text-left text-sm font-semibold text-gray-700">Rank</th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-gray-700">Product Name</th>
+                    <th 
+                      className="py-4 px-6 text-left text-sm font-semibold text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors"
+                      onClick={() => handleSort('name')}
+                    >
+                      <div className="flex items-center gap-2">
+                        Product Name
+                        {getSortIcon('name')}
+                      </div>
+                    </th>
                     <th className="py-4 px-6 text-left text-sm font-semibold text-gray-700">Tagline</th>
-                    <th className="py-4 px-6 text-center text-sm font-semibold text-gray-700">Votes</th>
-                    <th className="py-4 px-6 text-center text-sm font-semibold text-gray-700">Launch Date</th>
+                    <th 
+                      className="py-4 px-6 text-center text-sm font-semibold text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors"
+                      onClick={() => handleSort('votesCount')}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        Votes
+                        {getSortIcon('votesCount')}
+                      </div>
+                    </th>
+                    <th 
+                      className="py-4 px-6 text-center text-sm font-semibold text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors"
+                      onClick={() => handleSort('createdAt')}
+                    >
+                      <div className="flex items-center justify-center gap-2">
+                        Launch Date
+                        {getSortIcon('createdAt')}
+                      </div>
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-200">
-                  {posts.map((post, index) => (
+                  {sortedPosts.map((post, index) => (
                     <tr key={post.name} className="hover:bg-gray-50 transition-colors">
                       <td className="py-4 px-6 text-center text-sm font-medium text-gray-900">
                         {index + 1}
