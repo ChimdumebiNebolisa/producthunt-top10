@@ -8,6 +8,29 @@ export interface ProductHuntPost {
   url: string;
 }
 
+// Helper function to wrap text
+const wrapText = (doc: jsPDF, text: string, x: number, y: number, maxWidth: number, lineHeight: number = 5): number => {
+  const words = text.split(' ');
+  let line = '';
+  let currentY = y;
+  
+  for (let i = 0; i < words.length; i++) {
+    const testLine = line + words[i] + ' ';
+    const testWidth = doc.getTextWidth(testLine);
+    
+    if (testWidth > maxWidth && i > 0) {
+      doc.text(line, x, currentY);
+      line = words[i] + ' ';
+      currentY += lineHeight;
+    } else {
+      line = testLine;
+    }
+  }
+  
+  doc.text(line, x, currentY);
+  return currentY + lineHeight;
+};
+
 export const exportToPDF = (posts: ProductHuntPost[], sortField: string, sortDirection: string) => {
   const doc = new jsPDF();
   
@@ -32,7 +55,7 @@ export const exportToPDF = (posts: ProductHuntPost[], sortField: string, sortDir
   doc.setFont('helvetica', 'bold');
   
   const startY = 70;
-  const colWidths = [15, 60, 50, 20, 25];
+  const colWidths = [15, 50, 80, 20, 25];
   const headers = ['Rank', 'Product Name', 'Tagline', 'Votes', 'Launch Date'];
   
   // Draw table headers
@@ -49,27 +72,49 @@ export const exportToPDF = (posts: ProductHuntPost[], sortField: string, sortDir
   
   posts.forEach((post, index) => {
     // Check if we need a new page
-    if (currentY > 280) {
+    if (currentY > 270) {
       doc.addPage();
       currentY = 20;
     }
     
-    currentX = 20;
-    const rowData = [
-      (index + 1).toString(),
-      post.name.length > 25 ? post.name.substring(0, 25) + '...' : post.name,
-      post.tagline.length > 30 ? post.tagline.substring(0, 30) + '...' : post.tagline,
-      post.votesCount.toLocaleString(),
-      new Date(post.createdAt).toLocaleDateString()
-    ];
+    // Calculate row height based on content
+    const nameLines = Math.ceil(doc.getTextWidth(post.name) / colWidths[1]);
+    const taglineLines = Math.ceil(doc.getTextWidth(post.tagline) / colWidths[2]);
+    const maxLines = Math.max(nameLines, taglineLines, 1);
+    const rowHeight = Math.max(maxLines * 5, 8);
     
-    rowData.forEach((data, colIndex) => {
-      doc.rect(currentX, currentY, colWidths[colIndex], 8);
-      doc.text(data, currentX + 2, currentY + 5);
+    currentX = 20;
+    
+    // Draw row background
+    headers.forEach((_, colIndex) => {
+      doc.rect(currentX, currentY, colWidths[colIndex], rowHeight);
       currentX += colWidths[colIndex];
     });
     
-    currentY += 8;
+    // Add content
+    currentX = 20;
+    
+    // Rank
+    doc.text((index + 1).toString(), currentX + 2, currentY + 5);
+    currentX += colWidths[0];
+    
+    // Product Name (with wrapping)
+    const nameY = wrapText(doc, post.name, currentX + 2, currentY + 5, colWidths[1] - 4);
+    currentX += colWidths[1];
+    
+    // Tagline (with wrapping)
+    const taglineY = wrapText(doc, post.tagline, currentX + 2, currentY + 5, colWidths[2] - 4);
+    currentX += colWidths[2];
+    
+    // Votes
+    doc.text(post.votesCount.toLocaleString(), currentX + 2, currentY + 5);
+    currentX += colWidths[3];
+    
+    // Launch Date
+    doc.text(new Date(post.createdAt).toLocaleDateString(), currentX + 2, currentY + 5);
+    
+    // Move to next row based on the tallest content
+    currentY += Math.max(nameY - currentY, taglineY - currentY, rowHeight);
   });
   
   // Add summary statistics
@@ -89,6 +134,41 @@ export const exportToPDF = (posts: ProductHuntPost[], sortField: string, sortDir
   doc.text(`Average Votes: ${avgVotes.toLocaleString()}`, 20, currentY + 37);
   doc.text(`Highest Votes: ${highestVotes.toLocaleString()}`, 20, currentY + 44);
   doc.text(`Lowest Votes: ${lowestVotes.toLocaleString()}`, 20, currentY + 51);
+  
+  // Add detailed product information
+  doc.setFontSize(12);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Detailed Product Information', 20, currentY + 70);
+  
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'normal');
+  
+  let detailY = currentY + 80;
+  
+  posts.forEach((post, index) => {
+    // Check if we need a new page
+    if (detailY > 270) {
+      doc.addPage();
+      detailY = 20;
+    }
+    
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${index + 1}. ${post.name}`, 20, detailY);
+    detailY += 7;
+    
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Tagline: ${post.tagline}`, 20, detailY);
+    detailY += 7;
+    
+    doc.text(`Votes: ${post.votesCount.toLocaleString()}`, 20, detailY);
+    detailY += 7;
+    
+    doc.text(`Launch Date: ${new Date(post.createdAt).toLocaleDateString()}`, 20, detailY);
+    detailY += 7;
+    
+    doc.text(`URL: ${post.url}`, 20, detailY);
+    detailY += 12; // Extra space between products
+  });
   
   // Add footer
   doc.setFontSize(8);

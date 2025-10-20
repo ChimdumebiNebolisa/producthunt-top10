@@ -131,8 +131,11 @@ The application is fully responsive and works on:
 
 Export your Product Hunt data for analysis and reporting:
 
+- **Complete Data Display**: No truncation - all product names and taglines shown in full
+- **Text Wrapping**: Long text automatically wraps to multiple lines for readability
 - **Formatted Tables**: Clean, professional table layout in PDF
 - **Summary Statistics**: Total votes, averages, and extremes
+- **Detailed Product Section**: Complete information for each product including full URLs
 - **Sort Information**: Includes current sort field and direction
 - **Metadata**: Generation date and data source information
 - **Automatic Naming**: Files named with current date for easy organization
