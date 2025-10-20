@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { exportToPDF, ProductHuntPost } from '../utils/pdfExport';
+import { exportToPDF } from '../utils/pdfExport';
 
 interface Post {
   name: string;
