@@ -1,36 +1,125 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Product Hunt Top 10 Viewer
+
+A Next.js application that displays the top 10 most upvoted Product Hunt posts from the past 10 days.
+
+## Features
+
+- 🔐 Secure API authentication using OAuth2 client credentials flow
+- 📊 Real-time data fetching from Product Hunt GraphQL API
+- 🎨 Modern UI with Tailwind CSS
+- 📱 Responsive design
+- ⚡ Fast loading with proper error handling
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **API**: Product Hunt GraphQL API v2
+- **Deployment**: Vercel
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+ 
+- npm or yarn
+- Product Hunt API credentials
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/ChimdumebiNebolisa/producthunt-top10.git
+cd producthunt-top10
+```
+
+2. Install dependencies:
+```bash
+npm install
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env.local
+```
+
+4. Add your Product Hunt API credentials to `.env.local`:
+```
+PRODUCTHUNT_API_KEY=your_api_key_here
+PRODUCTHUNT_API_SECRET=your_api_secret_here
+```
+
+### Running Locally
+
+Start the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Using the Application
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Click the **"Fetch Top 10"** button
+2. Wait for the loading spinner to complete
+3. View the top 10 most upvoted Product Hunt posts from the past 10 days
+4. Click on any product name to visit its Product Hunt page
 
-## Learn More
+## Deployment
 
-To learn more about Next.js, take a look at the following resources:
+### Vercel Deployment
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+This project is configured for automatic deployment to Vercel via GitHub Actions.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+#### Setting up Vercel Environment Variables
 
-## Deploy on Vercel
+1. Go to your Vercel dashboard
+2. Select your project
+3. Navigate to **Settings** → **Environment Variables**
+4. Add the following variables:
+   - `PRODUCTHUNT_API_KEY`: Your Product Hunt API key
+   - `PRODUCTHUNT_API_SECRET`: Your Product Hunt API secret
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+#### GitHub Secrets Setup
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+For automatic deployment, add these secrets to your GitHub repository:
+
+1. Go to your GitHub repository
+2. Navigate to **Settings** → **Secrets and variables** → **Actions**
+3. Add the following secrets:
+   - `VERCEL_TOKEN`: Your Vercel API token
+   - `VERCEL_ORG_ID`: Your Vercel organization ID
+   - `VERCEL_PROJECT_ID`: Your Vercel project ID
+
+### Manual Deployment
+
+You can also deploy manually using the Vercel CLI:
+
+```bash
+npm install -g vercel
+vercel --prod
+```
+
+## API Endpoints
+
+- `GET /api/top10` - Fetches the top 10 Product Hunt posts from the past 10 days
+
+## Environment Variables
+
+| Variable | Description | Required |
+|----------|-------------|----------|
+| `PRODUCTHUNT_API_KEY` | Product Hunt API client ID | Yes |
+| `PRODUCTHUNT_API_SECRET` | Product Hunt API client secret | Yes |
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Submit a pull request
+
+## License
+
+This project is open source and available under the [MIT License](LICENSE).
