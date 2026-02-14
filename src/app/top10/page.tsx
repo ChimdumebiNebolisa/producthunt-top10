@@ -63,13 +63,13 @@ function StatsStrip({ posts }: { posts: Post[] }) {
       <div className="surface-panel rounded-xl p-4 shadow-sm">
         <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Highest votes</p>
         <p className="text-sm font-medium text-[hsl(var(--foreground))] truncate" title={highest?.name}>
-          {highest ? `${highest.name} - ${highest.votesCount.toLocaleString()} votes` : 'n/a'}
+          {highest ? `${highest.name} - ${highest.votesCount.toLocaleString()} votes` : 'Not available'}
         </p>
       </div>
       <div className="surface-panel rounded-xl p-4 shadow-sm">
         <p className="text-sm text-[hsl(var(--muted-foreground))] mb-1">Lowest votes</p>
         <p className="text-sm font-medium text-[hsl(var(--foreground))] truncate" title={lowest?.name}>
-          {lowest ? `${lowest.name} - ${lowest.votesCount.toLocaleString()} votes` : 'n/a'}
+          {lowest ? `${lowest.name} - ${lowest.votesCount.toLocaleString()} votes` : 'Not available'}
         </p>
       </div>
     </div>
@@ -186,6 +186,8 @@ export default function Top10Page() {
   };
 
   const hasData = posts.length > 0;
+  const maxVotes = hasData ? Math.max(...posts.map((post) => post.votesCount)) : 1;
+  const skeletonRows = Array.from({ length: 10 });
 
   return (
     <div className="min-h-screen flex flex-col items-center py-10 px-4">
@@ -266,13 +268,24 @@ export default function Top10Page() {
           </div>
         )}
 
-        {posts.length > 0 && (
-          <>
-            <StatsStrip posts={posts} />
-            <div className="surface-panel shadow-lg rounded-2xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-[hsl(var(--muted))]">
+        <StatsStrip posts={posts} />
+
+        {!hasData && !loading && !error && (
+          <div className="surface-panel rounded-2xl px-6 py-7 mt-1 mb-6 text-center">
+            <h2 className="text-xl font-semibold text-[hsl(var(--foreground))]">No data yet</h2>
+            <p className="mt-2 text-sm text-[hsl(var(--muted-foreground))]">
+              Fetch Top 10 to load the latest posts.
+            </p>
+            <p className="mt-2 text-xs text-[hsl(var(--muted-foreground))]">
+              Uses live Product Hunt API via server proxy.
+            </p>
+          </div>
+        )}
+
+        <div className="surface-panel shadow-lg rounded-2xl overflow-hidden">
+          <div className="overflow-auto max-h-[70vh]">
+            <table className="w-full">
+              <thead className="bg-[hsl(var(--muted))] sticky top-0 z-10">
                   <tr>
                     <th className="py-4 px-6 text-left text-sm font-semibold text-[hsl(var(--foreground))]">Rank</th>
                     <th 
@@ -304,9 +317,10 @@ export default function Top10Page() {
                       </div>
                     </th>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-[hsl(var(--border))]">
-                  {sortedPosts.map((post, index) => (
+              </thead>
+              <tbody className="divide-y divide-[hsl(var(--border))]">
+                {hasData
+                  ? sortedPosts.map((post, index) => (
                     <tr key={post.name} className="hover:bg-[hsl(var(--muted)/0.72)] transition-colors">
                       <td className="py-4 px-6 text-center">
                         <span className="inline-flex items-center justify-center min-w-[2rem] py-0.5 px-2 rounded-full bg-[hsl(var(--primary)/0.15)] text-[hsl(var(--primary))] text-sm font-semibold">
@@ -317,17 +331,27 @@ export default function Top10Page() {
                         <a
                           href={post.url}
                           target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-2))] hover:underline font-medium"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-2))] hover:underline font-medium"
                         >
                           {post.name}
+                          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5h5m0 0v5m0-5L10 14" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 8H7a2 2 0 00-2 2v7a2 2 0 002 2h7a2 2 0 002-2v-1" />
+                          </svg>
                         </a>
                       </td>
                       <td className="py-4 px-6 text-sm text-[hsl(var(--muted-foreground))]">
                         {post.tagline}
                       </td>
-                      <td className="py-4 px-6 text-center text-lg font-bold text-[hsl(var(--foreground))]">
-                        {post.votesCount.toLocaleString()}
+                      <td className="py-4 px-6 text-center">
+                        <p className="text-lg font-bold text-[hsl(var(--foreground))]">{post.votesCount.toLocaleString()}</p>
+                        <div className="mt-2 h-1.5 rounded-full bg-[hsl(var(--muted))] overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-[hsl(var(--primary)/0.75)] to-[hsl(var(--primary-2)/0.55)]"
+                            style={{ width: `${(post.votesCount / maxVotes) * 100}%` }}
+                          />
+                        </div>
                       </td>
                       <td className="py-4 px-6 text-center text-sm text-[hsl(var(--foreground))]">
                         {new Date(post.createdAt).toLocaleDateString('en-US', {
@@ -337,19 +361,33 @@ export default function Top10Page() {
                         })}
                       </td>
                     </tr>
+                  ))
+                  : skeletonRows.map((_, index) => (
+                    <tr key={`skeleton-${index}`} className="animate-pulse">
+                      <td className="py-4 px-6 text-center">
+                        <span className="inline-flex items-center justify-center min-w-[2rem] py-0.5 px-2 rounded-full bg-[hsl(var(--muted))] text-[hsl(var(--muted-foreground))] text-sm font-medium">
+                          {index + 1}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="h-4 w-44 rounded bg-[hsl(var(--muted))]" />
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="h-3.5 w-full max-w-[26rem] rounded bg-[hsl(var(--muted))]" />
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="mx-auto h-4 w-16 rounded bg-[hsl(var(--muted))]" />
+                        <div className="mx-auto mt-2 h-1.5 w-24 rounded-full bg-[hsl(var(--muted))]" />
+                      </td>
+                      <td className="py-4 px-6">
+                        <div className="mx-auto h-4 w-24 rounded bg-[hsl(var(--muted))]" />
+                      </td>
+                    </tr>
                   ))}
-                </tbody>
-              </table>
-            </div>
+              </tbody>
+            </table>
           </div>
-          </>
-        )}
-
-        {posts.length === 0 && !loading && !error && (
-          <div className="surface-panel rounded-xl px-4 py-3 text-center text-[hsl(var(--muted-foreground))] mt-8">
-            Use Fetch Top 10 to load the latest Product Hunt data.
-          </div>
-        )}
+        </div>
       </div>
     </div>
   );
