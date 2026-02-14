@@ -37,7 +37,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
+        <div className="relative min-h-screen overflow-x-clip">
+          <div className="app-gradient-bg pointer-events-none absolute inset-0 -z-10" />
+          {children}
+        </div>
       </body>
     </html>
   );
