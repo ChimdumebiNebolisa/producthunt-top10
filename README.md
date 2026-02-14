@@ -314,7 +314,7 @@ If you encounter any issues or have questions:
 
 1. **Check** the [Issues](https://github.com/ChimdumebiNebolisa/producthunt-top10/issues) page
 2. **Create** a new issue with detailed information
-3. **Contact** the maintainers
+3. **Contact** the maintainer
 
 ## 🔮 Future Enhancements
 
@@ -328,9 +328,3 @@ If you encounter any issues or have questions:
 - [ ] **Internationalization**: Multi-language support
 
 ---
-
-**Made with ❤️ by the Product Hunt Top 10 Viewer Team**
-
-[![GitHub stars](https://img.shields.io/github/stars/ChimdumebiNebolisa/producthunt-top10?style=social)](https://github.com/ChimdumebiNebolisa/producthunt-top10)
-[![GitHub forks](https://img.shields.io/github/forks/ChimdumebiNebolisa/producthunt-top10?style=social)](https://github.com/ChimdumebiNebolisa/producthunt-top10)
-[![GitHub issues](https://img.shields.io/github/issues/ChimdumebiNebolisa/producthunt-top10)](https://github.com/ChimdumebiNebolisa/producthunt-top10/issues)

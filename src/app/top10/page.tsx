@@ -15,10 +15,47 @@ interface Post {
 type SortField = 'votesCount' | 'createdAt' | 'name';
 type SortDirection = 'asc' | 'desc';
 
+function StatsStrip({ posts }: { posts: Post[] }) {
+  const totalVotes = posts.reduce((s, p) => s + p.votesCount, 0);
+  const averageVotes = posts.length ? Math.round(totalVotes / posts.length) : 0;
+  const highest = posts.length
+    ? posts.reduce((max, p) => (p.votesCount > max.votesCount ? p : max), posts[0])
+    : null;
+  const lowest = posts.length
+    ? posts.reduce((min, p) => (p.votesCount < min.votesCount ? p : min), posts[0])
+    : null;
+
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+        <p className="text-sm text-gray-500 mb-1">Total votes</p>
+        <p className="text-lg font-semibold text-gray-900">{totalVotes.toLocaleString()}</p>
+      </div>
+      <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+        <p className="text-sm text-gray-500 mb-1">Average votes</p>
+        <p className="text-lg font-semibold text-gray-900">{averageVotes.toLocaleString()}</p>
+      </div>
+      <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+        <p className="text-sm text-gray-500 mb-1">Highest votes</p>
+        <p className="text-sm font-medium text-gray-900 truncate" title={highest?.name}>
+          {highest ? `${highest.name} — ${highest.votesCount.toLocaleString()} votes` : '—'}
+        </p>
+      </div>
+      <div className="bg-white rounded-lg border border-gray-200 p-4 shadow-sm">
+        <p className="text-sm text-gray-500 mb-1">Lowest votes</p>
+        <p className="text-sm font-medium text-gray-900 truncate" title={lowest?.name}>
+          {lowest ? `${lowest.name} — ${lowest.votesCount.toLocaleString()} votes` : '—'}
+        </p>
+      </div>
+    </div>
+  );
+}
+
 export default function Top10Page() {
   const [posts, setPosts] = useState<Post[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [sortField, setSortField] = useState<SortField>('votesCount');
   const [sortDirection, setSortDirection] = useState<SortDirection>('desc');
 
@@ -32,6 +69,7 @@ export default function Top10Page() {
       }
       const data = await response.json();
       setPosts(data);
+      setLastUpdated(new Date());
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('Error fetching data. Please try again later.');
@@ -137,8 +175,20 @@ export default function Top10Page() {
           </div>
         )}
 
+        <section className="mb-6 space-y-1">
+          <h2 className="text-2xl font-bold text-gray-900">Top 10</h2>
+          <p className="text-gray-600">Top 10 posts from the past 10 days</p>
+          {lastUpdated !== null && (
+            <p className="text-sm text-gray-500">
+              Last updated: {lastUpdated.toLocaleString()}
+            </p>
+          )}
+        </section>
+
         {posts.length > 0 && (
-          <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+          <>
+            <StatsStrip posts={posts} />
+            <div className="bg-white shadow-lg rounded-lg overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-100">
@@ -153,9 +203,9 @@ export default function Top10Page() {
                         {getSortIcon('name')}
                       </div>
                     </th>
-                    <th className="py-4 px-6 text-left text-sm font-semibold text-gray-700">Tagline</th>
+                    <th className="py-4 px-6 text-left text-sm font-semibold text-gray-600">Tagline</th>
                     <th 
-                      className="py-4 px-6 text-center text-sm font-semibold text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors"
+                      className="py-4 px-6 text-center text-base font-bold text-gray-700 cursor-pointer hover:bg-gray-200 transition-colors"
                       onClick={() => handleSort('votesCount')}
                     >
                       <div className="flex items-center justify-center gap-2">
@@ -177,8 +227,10 @@ export default function Top10Page() {
                 <tbody className="divide-y divide-gray-200">
                   {sortedPosts.map((post, index) => (
                     <tr key={post.name} className="hover:bg-gray-50 transition-colors">
-                      <td className="py-4 px-6 text-center text-sm font-medium text-gray-900">
-                        {index + 1}
+                      <td className="py-4 px-6 text-center">
+                        <span className="inline-flex items-center justify-center min-w-[2rem] py-0.5 px-2 rounded-full bg-gray-200 text-gray-800 text-sm font-medium">
+                          {index + 1}
+                        </span>
                       </td>
                       <td className="py-4 px-6">
                         <a
@@ -190,10 +242,10 @@ export default function Top10Page() {
                           {post.name}
                         </a>
                       </td>
-                      <td className="py-4 px-6 text-sm text-gray-700">
+                      <td className="py-4 px-6 text-sm text-gray-500">
                         {post.tagline}
                       </td>
-                      <td className="py-4 px-6 text-center text-sm font-medium text-gray-900">
+                      <td className="py-4 px-6 text-center text-base font-semibold text-gray-900">
                         {post.votesCount.toLocaleString()}
                       </td>
                       <td className="py-4 px-6 text-center text-sm text-gray-700">
@@ -209,6 +261,7 @@ export default function Top10Page() {
               </table>
             </div>
           </div>
+          </>
         )}
 
         {posts.length === 0 && !loading && !error && (
